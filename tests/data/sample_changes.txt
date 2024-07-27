@@ -1,0 +1,14 @@
+### FILE_PATH: hello.py
+print("Hello, World!")
+
+### FILE_PATH: greetings/welcome.py
+def welcome(name):
+    return f"Welcome, {name}!"
+
+print(welcome("CodeShuttle User"))
+
+### FILE_PATH: config.json
+{
+  "version": "1.0",
+  "environment": "development"
+}
