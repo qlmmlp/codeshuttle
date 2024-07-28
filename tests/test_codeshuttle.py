@@ -1,5 +1,3 @@
-### FILE_PATH: tests/test_codeshuttle.py
-
 import pytest
 from io import StringIO
 from unittest.mock import patch, mock_open

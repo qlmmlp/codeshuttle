@@ -1,5 +1,3 @@
-### FILE_PATH: codeshuttle.py
-
 import sys
 import os
 from typing import List
