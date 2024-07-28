@@ -1,7 +1,5 @@
 # CodeShuttle
 
-# CodeShuttle
-
 CodeShuttle is a command-line tool that streamlines code transfers between AI assistants and source files during pair programming sessions. It simplifies the process of applying AI-generated code changes to your project.
 
 ## The Problem
