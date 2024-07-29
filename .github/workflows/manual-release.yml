@@ -1,0 +1,88 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Name of the release branch'
+        required: true
+        default: 'release'
+      project_name:
+        description: 'Codeshuttle'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+
+      - name: Merge release into main
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout main
+          git merge ${{ github.event.inputs.release_branch }}
+          git push origin main
+
+      - name: Merge release into develop
+        run: |
+          git checkout develop
+          git merge ${{ github.event.inputs.release_branch }}
+          git push origin develop
+
+      - name: Extract version from CHANGELOG.md
+        id: get_version
+        run: |
+          VERSION=$(grep -m1 '## \[' CHANGELOG.md | sed 's/## \[//' | sed 's/\].*//')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git checkout main
+          git tag -a v${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
+          git push origin v${{ steps.get_version.outputs.VERSION }}
+
+      - name: Update Homebrew Tap
+        env:
+          TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          
+          git clone https://x-access-token:${TAP_REPO_TOKEN}@github.com/yourusername/homebrew-tap.git
+          cd homebrew-tap
+          
+          NEW_VERSION="${{ steps.get_version.outputs.VERSION }}"
+          NEW_SHA256=$(curl -sL https://github.com/yourusername/${{ github.event.inputs.project_name }}/archive/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
+          
+          echo "$NEW_VERSION" > Formula/${{ github.event.inputs.project_name }}_version.txt
+          echo "$NEW_SHA256" > Formula/${{ github.event.inputs.project_name }}_sha256.txt
+          
+          git add Formula/${{ github.event.inputs.project_name }}_version.txt Formula/${{ github.event.inputs.project_name }}_sha256.txt
+          git commit -m "Update ${{ github.event.inputs.project_name }} to ${{ steps.get_version.outputs.VERSION }}"
+          git push
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create v${{ steps.get_version.outputs.VERSION }} \
+            --title "Release ${{ steps.get_version.outputs.VERSION }}" \
+            --notes "Release notes for version ${{ steps.get_version.outputs.VERSION }}"
