@@ -1,7 +1,8 @@
+### FILE_PATH: codeshuttle/codeshuttle.py
+
 import sys
 import os
 from typing import List
-import argparse
 
 class FileChange:
     def __init__(self, file_path: str, content: str):
@@ -78,6 +79,8 @@ class CodeShuttle:
                 return f.read()
 
 def main():
+    import argparse
+
     parser = argparse.ArgumentParser(description="Apply code changes based on a specified format.")
     parser.add_argument("--input", help="Input file path (use '-' for stdin)", required=True)
     parser.add_argument("--root", help="Root directory for applying changes", default=".")
