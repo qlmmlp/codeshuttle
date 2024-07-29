@@ -8,35 +8,43 @@ on:
         required: true
         default: 'release'
       project_name:
-        description: 'Codeshuttle'
+        description: 'Project name'
         required: true
+        default: 'codeshuttle'
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -e .
 
       - name: Run tests
-        run: pytest
+        run: |
+          python -c "import sys; print(sys.path)"
+          python -c "import codeshuttle; print(codeshuttle.__file__)"
+          pytest -v
 
-      - name: Merge release into main
+      - name: Configure Git
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+
+      - name: Merge release into main
+        run: |
           git checkout main
           git merge ${{ github.event.inputs.release_branch }}
           git push origin main
@@ -63,14 +71,11 @@ jobs:
         env:
           TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          
-          git clone https://x-access-token:${TAP_REPO_TOKEN}@github.com/yourusername/homebrew-tap.git
+          git clone https://x-access-token:${TAP_REPO_TOKEN}@github.com/${{ github.repository_owner }}/homebrew-tap.git
           cd homebrew-tap
           
           NEW_VERSION="${{ steps.get_version.outputs.VERSION }}"
-          NEW_SHA256=$(curl -sL https://github.com/yourusername/${{ github.event.inputs.project_name }}/archive/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
+          NEW_SHA256=$(curl -sL https://github.com/${{ github.repository }}/archive/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
           
           echo "$NEW_VERSION" > Formula/${{ github.event.inputs.project_name }}_version.txt
           echo "$NEW_SHA256" > Formula/${{ github.event.inputs.project_name }}_sha256.txt
@@ -85,4 +90,4 @@ jobs:
         run: |
           gh release create v${{ steps.get_version.outputs.VERSION }} \
             --title "Release ${{ steps.get_version.outputs.VERSION }}" \
-            --notes "Release notes for version ${{ steps.get_version.outputs.VERSION }}"
+            --notes-file CHANGELOG.md

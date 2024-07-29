@@ -6,15 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1] - 2023-07-28
-### Fixed
-- Fixed a bug in the login process
-
-## [1.0.0] - 2023-07-15
+## [0.1.0] - 2023-07-15
 ### Added
 - Initial release of CodeShuttle
-- Feature A
-- Feature B
 
 ### Changed
 - Improved performance of algorithm X

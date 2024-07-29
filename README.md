@@ -1,3 +1,5 @@
+### FILE_PATH: README.md
+
 # CodeShuttle
 
 CodeShuttle is a command-line tool that streamlines code transfers between AI assistants and source files during pair programming sessions. It simplifies the process of applying AI-generated code changes to your project.
@@ -24,14 +26,6 @@ CodeShuttle solves these issues by:
 
 This approach significantly reduces the time and effort needed to implement AI-suggested code changes across multiple files in your project.
 
-## Features
-
-- Parse a structured input file to extract file changes
-- Apply changes to multiple files and directories
-- Verbose mode for detailed output
-- Support for both file input and stdin
-- Robust error handling and logging
-
 ## Installation
 
 1. Clone the repository:
@@ -47,9 +41,9 @@ This approach significantly reduces the time and effort needed to implement AI-s
    .venv\Scripts\activate  # On Windows
    ```
 
-3. Install the required dependencies:
+3. Install the package in editable mode:
    ```
-   pip install -r requirements.txt
+   pip install -e .
    ```
 
 ## Usage
@@ -57,7 +51,7 @@ This approach significantly reduces the time and effort needed to implement AI-s
 To use CodeShuttle, run the following command:
 
 ```
-python codeshuttle.py --input <input_file> --root <output_directory> [--verbose]
+codeshuttle --input <input_file> --root <output_directory> [--verbose]
 ```
 
 - `<input_file>`: Path to the input file containing the changes. Use `-` for stdin.
@@ -100,7 +94,7 @@ print(welcome("CodeShuttle User"))
 2. Run CodeShuttle:
 
 ```
-python codeshuttle.py --input sample_changes.txt --root ./output --verbose
+codeshuttle --input sample_changes.txt --root ./output --verbose
 ```
 
 This will create or modify the specified files in the `./output` directory.
