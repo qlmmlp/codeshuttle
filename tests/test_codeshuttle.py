@@ -1,7 +1,7 @@
 import pytest
 from io import StringIO
 from unittest.mock import patch, mock_open
-from codeshuttle import CodeShuttle, Parser, FileHandler, Logger, FileChange
+from codeshuttle.codeshuttle import CodeShuttle, Parser, FileHandler, Logger, FileChange
 
 def test_parser():
     parser = Parser()
@@ -33,8 +33,8 @@ def test_logger():
         logger.log("Test message", "INFO")
         assert "INFO: Test message" in fake_out.getvalue()
 
-@patch('codeshuttle.FileHandler')
-@patch('codeshuttle.Parser')
+@patch('codeshuttle.codeshuttle.FileHandler')
+@patch('codeshuttle.codeshuttle.Parser')
 def test_codeshuttle_run(mock_parser, mock_file_handler):
     mock_parser.return_value.parse.return_value = [FileChange("test.txt", "content")]
 
@@ -47,8 +47,8 @@ def test_codeshuttle_run(mock_parser, mock_file_handler):
 
 @patch('builtins.open', new_callable=mock_open, read_data="input data")
 def test_codeshuttle_run_from_file(mock_file):
-    with patch('codeshuttle.Parser') as mock_parser, \
-            patch('codeshuttle.FileHandler') as mock_file_handler:
+    with patch('codeshuttle.codeshuttle.Parser') as mock_parser, \
+            patch('codeshuttle.codeshuttle.FileHandler') as mock_file_handler:
         mock_parser.return_value.parse.return_value = [FileChange("test.txt", "content")]
 
         shuttle = CodeShuttle()
