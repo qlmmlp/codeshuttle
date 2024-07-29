@@ -1,6 +1,6 @@
 import pytest
 from io import StringIO
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, call, MagicMock
 from codeshuttle.codeshuttle import CodeShuttle, Parser, FileHandler, Logger, FileChange
 
 def test_parser():
@@ -33,30 +33,49 @@ def test_logger():
         logger.log("Test message", "INFO")
         assert "INFO: Test message" in fake_out.getvalue()
 
-@patch('codeshuttle.codeshuttle.FileHandler')
-@patch('codeshuttle.codeshuttle.Parser')
-def test_codeshuttle_run(mock_parser, mock_file_handler):
-    mock_parser.return_value.parse.return_value = [FileChange("test.txt", "content")]
+def test_codeshuttle_run():
+    mock_parser = MagicMock(spec=Parser)
+    mock_file_handler = MagicMock(spec=FileHandler)
+    mock_logger = MagicMock(spec=Logger)
+
+    mock_parser.parse.return_value = [FileChange("test.txt", "content")]
 
     shuttle = CodeShuttle()
-    with patch.object(shuttle, '_read_input', return_value="mock input"):
+    shuttle.parser = mock_parser
+    shuttle.file_handler = mock_file_handler
+    shuttle.logger = mock_logger
+
+    with patch.object(shuttle, '_read_input', return_value="mock input") as mock_read_input:
         shuttle.run("input.txt", "/root", verbose=True)
 
-    mock_parser.return_value.parse.assert_called_once()
-    mock_file_handler.return_value.apply_changes.assert_called_once_with([FileChange("test.txt", "content")], "/root")
+    print(f"Mock parser calls: {mock_parser.mock_calls}")
+    print(f"Mock file handler calls: {mock_file_handler.mock_calls}")
+    print(f"Mock read input calls: {mock_read_input.mock_calls}")
 
-@patch('builtins.open', new_callable=mock_open, read_data="input data")
-def test_codeshuttle_run_from_file(mock_file):
-    with patch('codeshuttle.codeshuttle.Parser') as mock_parser, \
-            patch('codeshuttle.codeshuttle.FileHandler') as mock_file_handler:
-        mock_parser.return_value.parse.return_value = [FileChange("test.txt", "content")]
+    mock_read_input.assert_called_once_with("input.txt")
+    mock_parser.parse.assert_called_once_with("mock input")
+    mock_file_handler.apply_changes.assert_called_once_with([FileChange("test.txt", "content")], "/root")
 
-        shuttle = CodeShuttle()
+def test_codeshuttle_run_from_file():
+    mock_parser = MagicMock(spec=Parser)
+    mock_file_handler = MagicMock(spec=FileHandler)
+    mock_logger = MagicMock(spec=Logger)
+
+    mock_parser.parse.return_value = [FileChange("test.txt", "content")]
+
+    shuttle = CodeShuttle()
+    shuttle.parser = mock_parser
+    shuttle.file_handler = mock_file_handler
+    shuttle.logger = mock_logger
+
+    with patch('builtins.open', new_callable=mock_open, read_data="input data"):
         shuttle.run("input.txt", "/root", verbose=False)
 
-        mock_file.assert_called_once_with("input.txt", "r")
-        mock_parser.return_value.parse.assert_called_once_with("input data")
-        mock_file_handler.return_value.apply_changes.assert_called_once_with([FileChange("test.txt", "content")], "/root")
+    print(f"Mock parser calls: {mock_parser.mock_calls}")
+    print(f"Mock file handler calls: {mock_file_handler.mock_calls}")
+
+    mock_parser.parse.assert_called_once_with("input data")
+    mock_file_handler.apply_changes.assert_called_once_with([FileChange("test.txt", "content")], "/root")
 
 if __name__ == "__main__":
     pytest.main()
