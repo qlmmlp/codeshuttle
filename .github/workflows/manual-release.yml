@@ -67,16 +67,18 @@ jobs:
           cd homebrew-tap
 
           NEW_VERSION="${{ github.event.inputs.version }}"
-          NEW_SHA256=$(curl -sL https://github.com/${{ github.repository }}/archive/refs/tags/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
+          NEW_SHA256=$(curl -sL https://github.com/qlmmlp/codeshuttle/archive/refs/tags/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
 
           FORMULA_FILE="Formula/codeshuttle.rb"
 
           # Update the formula file with the new version and SHA256
           sed -e "s/version \".*\"/version \"${NEW_VERSION}\"/" \
               -e "s/sha256 \".*\"/sha256 \"${NEW_SHA256}\"/" \
-              -e "s#url \".*\"#url \"https://github.com/${{ github.repository }}/archive/refs/tags/v${NEW_VERSION}.tar.gz\"#" \
+              -e "s#url \".*\"#url \"https://github.com/qlmmlp/codeshuttle/archive/refs/tags/v${NEW_VERSION}.tar.gz\"#" \
               "$FORMULA_FILE" > "$FORMULA_FILE.tmp" && mv "$FORMULA_FILE.tmp" "$FORMULA_FILE"
 
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add $FORMULA_FILE
           git commit -m "Update codeshuttle to ${{ github.event.inputs.version }}"
           git push
