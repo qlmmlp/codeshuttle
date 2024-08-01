@@ -9,6 +9,7 @@ on:
 
 jobs:
   release:
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -66,12 +67,16 @@ jobs:
           cd homebrew-tap
           
           NEW_VERSION="${{ github.event.inputs.version }}"
-          NEW_SHA256=$(curl -sL https://github.com/${{ github.repository }}/archive/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
+          NEW_SHA256=$(curl -sL https://github.com/${{ github.repository }}/archive/refs/tags/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
           
-          echo "$NEW_VERSION" > Formula/codeshuttle_version.txt
-          echo "$NEW_SHA256" > Formula/codeshuttle_sha256.txt
+          FORMULA_FILE="Formula/codeshuttle.rb"
           
-          git add Formula/codeshuttle_version.txt Formula/codeshuttle_sha256.txt
+          # Update the formula file with the new version and SHA256
+          sed -i '' "s/version \".*\"/version \"${NEW_VERSION}\"/" $FORMULA_FILE
+          sed -i '' "s/sha256 \".*\"/sha256 \"${NEW_SHA256}\"/" $FORMULA_FILE
+          sed -i '' "s/url \".*\"/url \"https:\/\/github.com\/${{ github.repository }}\/archive\/refs\/tags\/v${NEW_VERSION}.tar.gz\"/" $FORMULA_FILE
+          
+          git add $FORMULA_FILE
           git commit -m "Update codeshuttle to ${{ github.event.inputs.version }}"
           git push
 
