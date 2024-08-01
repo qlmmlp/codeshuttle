@@ -1,5 +1,3 @@
-### FILE_PATH: README.md
-
 # CodeShuttle
 
 CodeShuttle is a command-line tool that streamlines code transfers between AI assistants and source files during pair programming sessions. It simplifies the process of applying AI-generated code changes to your project.
@@ -27,6 +25,20 @@ CodeShuttle solves these issues by:
 This approach significantly reduces the time and effort needed to implement AI-suggested code changes across multiple files in your project.
 
 ## Installation
+
+### Using Homebrew (macOS and Linux)
+
+1. Tap the CodeShuttle repository:
+   ```
+   brew tap qlmmlp/tap
+   ```
+
+2. Install CodeShuttle:
+   ```
+   brew install codeshuttle
+   ```
+
+### Manual Installation
 
 1. Clone the repository:
    ```
