@@ -7,10 +7,9 @@ on:
         description: 'Name of the release branch'
         required: true
         default: 'release'
-      project_name:
-        description: 'Project name'
+      version:
+        description: 'Version to release (e.g., 1.0.0)'
         required: true
-        default: 'codeshuttle'
 
 jobs:
   release:
@@ -56,17 +55,15 @@ jobs:
           git merge ${{ github.event.inputs.release_branch }}
           git push origin develop
 
-      - name: Extract version from CHANGELOG.md
-        id: get_version
-        run: |
-          VERSION=$(grep -m1 '## \[' CHANGELOG.md | sed 's/## \[//' | sed 's/\].*//')
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Create and push tag
         run: |
           git checkout main
-          git tag -a v${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
-          git push origin v${{ steps.get_version.outputs.VERSION }}
+          if ! git rev-parse v${{ github.event.inputs.version }} >/dev/null 2>&1; then
+            git tag -a v${{ github.event.inputs.version }} -m "Release ${{ github.event.inputs.version }}"
+            git push origin v${{ github.event.inputs.version }}
+          else
+            echo "Tag v${{ github.event.inputs.version }} already exists. Skipping tag creation."
+          fi
 
       - name: Update Homebrew Tap
         env:
@@ -75,20 +72,20 @@ jobs:
           git clone https://x-access-token:${TAP_REPO_TOKEN}@github.com/${{ github.repository_owner }}/homebrew-tap.git
           cd homebrew-tap
           
-          NEW_VERSION="${{ steps.get_version.outputs.VERSION }}"
+          NEW_VERSION="${{ github.event.inputs.version }}"
           NEW_SHA256=$(curl -sL https://github.com/${{ github.repository }}/archive/v${NEW_VERSION}.tar.gz | sha256sum | awk '{print $1}')
           
-          echo "$NEW_VERSION" > Formula/${{ github.event.inputs.project_name }}_version.txt
-          echo "$NEW_SHA256" > Formula/${{ github.event.inputs.project_name }}_sha256.txt
+          echo "$NEW_VERSION" > Formula/codeshuttle_version.txt
+          echo "$NEW_SHA256" > Formula/codeshuttle_sha256.txt
           
-          git add Formula/${{ github.event.inputs.project_name }}_version.txt Formula/${{ github.event.inputs.project_name }}_sha256.txt
-          git commit -m "Update ${{ github.event.inputs.project_name }} to ${{ steps.get_version.outputs.VERSION }}"
+          git add Formula/codeshuttle_version.txt Formula/codeshuttle_sha256.txt
+          git commit -m "Update codeshuttle to ${{ github.event.inputs.version }}"
           git push
 
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
-          gh release create v${{ steps.get_version.outputs.VERSION }} \
-            --title "Release ${{ steps.get_version.outputs.VERSION }}" \
+          gh release create v${{ github.event.inputs.version }} \
+            --title "Release ${{ github.event.inputs.version }}" \
             --notes-file CHANGELOG.md
