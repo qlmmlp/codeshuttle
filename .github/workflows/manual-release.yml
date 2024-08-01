@@ -3,10 +3,6 @@ name: Manual Release
 on:
   workflow_dispatch:
     inputs:
-      release_branch:
-        description: 'Name of the release branch'
-        required: true
-        default: 'release'
       version:
         description: 'Version to release (e.g., 1.0.0)'
         required: true
@@ -38,21 +34,18 @@ jobs:
           pip install -e .
 
       - name: Run tests
-        run: |
-          python -c "import sys; print(sys.path)"
-          python -c "import codeshuttle; print(codeshuttle.__file__)"
-          pytest -v
+        run: pytest -v
 
       - name: Merge release into main
         run: |
           git checkout main
-          git merge ${{ github.event.inputs.release_branch }}
+          git merge origin/release
           git push origin main
 
       - name: Merge release into develop
         run: |
           git checkout develop
-          git merge ${{ github.event.inputs.release_branch }}
+          git merge origin/release
           git push origin develop
 
       - name: Create and push tag
