@@ -1,0 +1,16 @@
+README.md
+setup.py
+codeshuttle/__init__.py
+codeshuttle/cli.py
+codeshuttle/codeshuttle.py
+codeshuttle/file_change.py
+codeshuttle/file_handler.py
+codeshuttle/logger.py
+codeshuttle/parser.py
+codeshuttle.egg-info/PKG-INFO
+codeshuttle.egg-info/SOURCES.txt
+codeshuttle.egg-info/dependency_links.txt
+codeshuttle.egg-info/entry_points.txt
+codeshuttle.egg-info/requires.txt
+codeshuttle.egg-info/top_level.txt
+tests/test_codeshuttle.py
