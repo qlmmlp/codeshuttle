@@ -3,6 +3,7 @@
 import sys
 import os
 from typing import List
+import pyperclip
 
 class FileChange:
     def __init__(self, file_path: str, content: str):
@@ -74,6 +75,8 @@ class CodeShuttle:
     def _read_input(self, input_source: str) -> str:
         if input_source == '-':
             return sys.stdin.read()
+        elif input_source == 'pb':
+            return pyperclip.paste()
         else:
             with open(input_source, 'r') as f:
                 return f.read()
@@ -82,7 +85,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Apply code changes based on a specified format.")
-    parser.add_argument("--input", help="Input file path (use '-' for stdin)", required=True)
+    parser.add_argument("--input", help="Input source. Can be file path, stdin, or 'pb' for clipboard. (use '-' for stdin)", required=True)
     parser.add_argument("--root", help="Root directory for applying changes", default=".")
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
