@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="codeshuttle",
-    version="0.1.0",  # Update this as you release new versions
+    version="0.1.5",  # Update this as you release new versions
     author="Anton Sakharov",
     author_email="qlmmlp@gmail.com",
     description="A tool to streamline code transfers between AI assistants and source files",
@@ -36,7 +36,7 @@ setup(
     python_requires='>=3.7',
     entry_points={
         'console_scripts': [
-            'codeshuttle=codeshuttle.codeshuttle:main',
+            'codeshuttle=codeshuttle.cli:main',
         ],
     },
     include_package_data=True,
