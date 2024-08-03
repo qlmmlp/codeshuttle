@@ -16,7 +16,7 @@ ENV/
 # PyCharm project settings
 .idea/
 
-
+codeshuttle.egg-info/
 
 # VS Code settings
 .vscode/
