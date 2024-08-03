@@ -3,6 +3,5 @@ from .file_change import FileChange
 from .parser import Parser
 from .file_handler import FileHandler
 from .logger import Logger
-from .cli import main
 
-__all__ = ['CodeShuttle', 'FileChange', 'Parser', 'FileHandler', 'Logger', 'main']
+__all__ = ['CodeShuttle', 'FileChange', 'Parser', 'FileHandler', 'Logger']

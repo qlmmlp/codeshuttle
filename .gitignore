@@ -18,6 +18,9 @@ ENV/
 
 codeshuttle.egg-info/
 
+/tests/data/*
+!/tests/data/sample_changes.txt
+
 # VS Code settings
 .vscode/
 
