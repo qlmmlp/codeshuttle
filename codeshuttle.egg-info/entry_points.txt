@@ -1,2 +1,0 @@
-[console_scripts]
-codeshuttle = codeshuttle.cli:main
