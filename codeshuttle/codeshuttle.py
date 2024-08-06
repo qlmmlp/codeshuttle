@@ -14,7 +14,6 @@ class CodeShuttle:
 
     def apply_changes(self, input_source: str, root_dir: str, verbose: bool, output_file: str = None, dry_run: bool = False):
         try:
-            # Check if root directory exists and is writable
             if not os.path.exists(root_dir):
                 raise OSError(f"Root directory '{root_dir}' does not exist.")
             if not os.access(root_dir, os.W_OK):
@@ -22,6 +21,10 @@ class CodeShuttle:
 
             input_data = self._read_input(input_source)
             changes = self.parser.parse(input_data)
+
+            # Convert file paths to be relative to root_dir
+            for change in changes:
+                change.file_path = os.path.relpath(change.file_path, root_dir)
 
             if dry_run:
                 self._preview_changes(changes)
@@ -92,8 +95,9 @@ class CodeShuttle:
 
     @staticmethod
     def _preview_collection(files):
+        print("Files that would be collected:")
         for file in files:
-            print(f"Would collect: {os.path.basename(file)}")
+            print(f"  {file}")
 
     def _write_collected_content(self, content, output_file: str, root_dir: str):
         try:
